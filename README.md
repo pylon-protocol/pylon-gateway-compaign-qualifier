@@ -1,0 +1,2 @@
+# Valkyrie Protocol: Qualifier Template
+
