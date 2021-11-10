@@ -5,7 +5,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::borrow::Borrow;
 
-use crate::msgs::PoolQueryMsg;
+use crate::msgs::{GovQueryMsg, GovStakerResponse, PoolQueryMsg};
 use valkyrie::campaign::query_msgs::ActorResponse;
 use valkyrie_qualifier::QualifiedContinueOption;
 
@@ -15,6 +15,7 @@ const QUALIFIER_CONFIG: Item<QualifierConfig> = Item::new("qualifier_config");
 pub struct QualifierConfig {
     pub admin: Addr,
     pub pool: Addr,
+    pub gov: Addr,
     pub continue_option_on_fail: QualifiedContinueOption,
 }
 
@@ -67,6 +68,7 @@ const REQUIREMENT: Item<Requirement> = Item::new("requirement");
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Requirement {
     pub deposit_delta: Uint256,
+    pub min_mine_stake_amount: Uint256,
 }
 
 impl Requirement {
@@ -90,6 +92,11 @@ impl Requirement {
         _referrer: Option<&Addr>,
     ) -> StdResult<(bool, String)> {
         let result = self.is_satisfy_deposit_delta(storage, querier, block_number, sender)?;
+        if !result.0 {
+            return Ok(result);
+        }
+
+        let result = self.is_satisfy_mine_stake_amount(storage, querier, sender)?;
         if !result.0 {
             return Ok(result);
         }
@@ -124,6 +131,28 @@ impl Requirement {
                     "Delta does not satisfy condition(required: {}, delta: {})",
                     self.deposit_delta.to_string(),
                     pool_deposit_after.to_string(),
+                ),
+            ));
+        }
+
+        Ok((true, String::default()))
+    }
+
+    fn is_satisfy_mine_stake_amount(
+        &self,
+        storage: &dyn Storage,
+        querier: &Querier,
+        sender: &Addr,
+    ) -> StdResult<(bool, String)> {
+        let config = QualifierConfig::load(storage)?;
+        let stake_amount = querier.load_gov_stake_amount(&config.gov, sender)?;
+        if Uint256::from(stake_amount) < self.min_mine_stake_amount {
+            return Ok((
+                false,
+                format!(
+                    "Minimum MINE stake amount does not satisfy condition(required: {}, amount: {})",
+                    stake_amount.to_string(),
+                    self.min_mine_stake_amount.to_string(),
                 ),
             ));
         }
@@ -185,6 +214,17 @@ impl Querier<'_> {
                 owner: staker.to_string(),
             },
         )
+    }
+
+    pub fn load_gov_stake_amount(&self, gov: &Addr, staker: &Addr) -> StdResult<Uint128> {
+        let staker: GovStakerResponse = self.querier.query_wasm_smart(
+            gov,
+            &GovQueryMsg::Staker {
+                address: staker.to_string(),
+            },
+        )?;
+
+        Ok(staker.balance)
     }
 
     pub fn load_participation_count(&self, campaign: &Addr, address: &Addr) -> StdResult<u64> {

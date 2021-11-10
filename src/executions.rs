@@ -19,12 +19,14 @@ pub fn instantiate(
     QualifierConfig {
         admin: info.sender,
         pool: deps.api.addr_validate(msg.pool.as_str())?,
+        gov: deps.api.addr_validate(msg.gov.as_str())?,
         continue_option_on_fail: msg.continue_option_on_fail,
     }
     .save(deps.storage)?;
 
     Requirement {
         deposit_delta: msg.deposit_delta,
+        min_mine_stake_amount: msg.min_mine_stake_amount,
     }
     .save(deps.storage)?;
 
