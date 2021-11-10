@@ -56,6 +56,8 @@ pub fn configure(
         config.continue_option_on_fail = v;
     }
 
+    config.save(deps.storage)?;
+
     Ok(response)
 }
 
