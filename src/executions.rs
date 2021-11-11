@@ -39,6 +39,7 @@ pub fn configure(
     info: MessageInfo,
     admin: Option<String>,
     pool: Option<String>,
+    gov: Option<String>,
     continue_option_on_fail: Option<QualifiedContinueOption>,
 ) -> ExecuteResult {
     let response = Response::new().add_attribute("action", "configure");
@@ -53,6 +54,9 @@ pub fn configure(
     }
     if let Some(v) = pool {
         config.pool = deps.api.addr_validate(v.as_str())?;
+    }
+    if let Some(v) = gov {
+        config.gov = deps.api.addr_validate(v.as_str())?;
     }
     if let Some(v) = continue_option_on_fail {
         config.continue_option_on_fail = v;
@@ -70,11 +74,8 @@ pub fn prepare(deps: DepsMut, env: Env, info: MessageInfo) -> ExecuteResult {
     let querier = Querier::new(&deps.querier);
 
     let pool_deposit = querier.load_pool_deposit(&config.pool, &info.sender)?;
-    if !pool_deposit.is_zero() {
-        return Err(ContractError::Unauthorized {});
-    }
 
-    save_prepare_status(deps.storage, &env.block.height, &info.sender)?;
+    save_prepare_status(deps.storage, &env.block.height, &info.sender, &pool_deposit)?;
 
     Ok(response)
 }

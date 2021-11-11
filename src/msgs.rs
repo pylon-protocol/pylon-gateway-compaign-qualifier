@@ -19,6 +19,7 @@ pub enum ExecuteMsg {
     Configure {
         admin: Option<String>,
         pool: Option<String>,
+        gov: Option<String>,
         continue_option_on_fail: Option<QualifiedContinueOption>,
     },
 

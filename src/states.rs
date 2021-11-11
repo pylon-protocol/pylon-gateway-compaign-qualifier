@@ -38,17 +38,18 @@ pub fn is_admin(storage: &dyn Storage, address: &Addr) -> StdResult<bool> {
     QualifierConfig::load(storage).map(|c| c.is_admin(address))
 }
 
-const USER_PREPARE_STATUS: Map<(&[u8], &str), bool> = Map::new("prepare_status");
+const USER_PREPARE_STATUS: Map<(&[u8], &str), Uint256> = Map::new("prepare_status");
 
 pub fn save_prepare_status(
     storage: &mut dyn Storage,
     block_number: &u64,
     address: &Addr,
+    amount: &Uint256,
 ) -> StdResult<()> {
     USER_PREPARE_STATUS.borrow().save(
         storage,
         (&block_number.to_be_bytes(), address.as_str()),
-        &true,
+        amount,
     )
 }
 
@@ -56,7 +57,7 @@ pub fn load_prepare_status(
     storage: &dyn Storage,
     block_number: &u64,
     address: &Addr,
-) -> StdResult<bool> {
+) -> StdResult<Uint256> {
     Ok(USER_PREPARE_STATUS
         .borrow()
         .may_load(storage, (&block_number.to_be_bytes(), address.as_str()))?
@@ -116,15 +117,11 @@ impl Requirement {
         block_number: &u64,
         sender: &Addr,
     ) -> StdResult<(bool, String)> {
-        let prepare_status = load_prepare_status(storage, block_number, sender)?;
-        if !prepare_status {
-            return Ok((false, "Not prepared".to_string()));
-        }
-
         // it's because before amount is zero
         let config = QualifierConfig::load(storage)?;
+        let prepare_status = load_prepare_status(storage, block_number, sender)?;
         let pool_deposit_after = querier.load_pool_deposit(&config.pool, sender)?;
-        if pool_deposit_after < self.deposit_delta {
+        if pool_deposit_after - prepare_status < self.deposit_delta {
             return Ok((
                 false,
                 format!(

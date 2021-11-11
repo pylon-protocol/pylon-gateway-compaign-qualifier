@@ -24,8 +24,9 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> E
         ExecuteMsg::Configure {
             admin,
             pool,
+            gov,
             continue_option_on_fail,
-        } => executions::configure(deps, env, info, admin, pool, continue_option_on_fail),
+        } => executions::configure(deps, env, info, admin, pool, gov, continue_option_on_fail),
         ExecuteMsg::Prepare {} => executions::prepare(deps, env, info),
         ExecuteMsg::Qualify(msg) => executions::qualify(deps, env, info, msg),
     }
