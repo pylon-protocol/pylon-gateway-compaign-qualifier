@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use cosmwasm_std::{Addr, Api, Env, MessageInfo, Response};
 use valkyrie_qualifier::QualifiedContinueOption;
 
@@ -7,8 +5,7 @@ use crate::executions::{instantiate, ExecuteResult};
 use crate::msgs::InstantiateMsg;
 use crate::states::QualifierConfig;
 use crate::tests::{
-    mock_deps, qualifier_creator_sender, qualifier_env, MockDeps, GOV, POOL, QUALIFIER,
-    QUALIFIER_CREATOR,
+    mock_deps, qualifier_creator_sender, qualifier_env, MockDeps, GOV, POOL, QUALIFIER_CREATOR,
 };
 
 pub fn exec(deps: &mut MockDeps, env: Env, info: MessageInfo) -> ExecuteResult {
@@ -35,7 +32,7 @@ pub fn default(deps: &mut MockDeps) -> (Env, MessageInfo, Response) {
 fn succeed() {
     let mut deps = mock_deps();
 
-    let (env, info, response) = default(&mut deps);
+    let (_, _, response) = default(&mut deps);
     assert_eq!(
         response,
         Response::default().add_attribute("action", "instantiate")

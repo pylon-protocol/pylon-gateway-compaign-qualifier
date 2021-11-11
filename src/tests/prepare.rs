@@ -2,9 +2,9 @@ use cosmwasm_bignumber::Uint256;
 use cosmwasm_std::{from_binary, to_binary, Env, MessageInfo, Response};
 
 use crate::executions::{prepare, ExecuteResult};
-use crate::msgs::{ExecuteMsg, PoolBalanceOfResponse, PoolQueryMsg};
+use crate::msgs::{PoolBalanceOfResponse, PoolQueryMsg};
 use crate::states::load_prepare_status;
-use crate::tests::{mock_deps, qualifier_creator_sender, qualifier_env, MockDeps, POOL};
+use crate::tests::{mock_deps, MockDeps, POOL};
 
 const DEPOSIT_AMOUNT: u64 = 1000000u64;
 

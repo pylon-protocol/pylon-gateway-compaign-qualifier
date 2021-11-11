@@ -1,6 +1,5 @@
 use cosmwasm_bignumber::Uint256;
 use cosmwasm_std::{from_binary, to_binary, Binary, Env, MessageInfo, Response, Uint128};
-use std::error::Error;
 use valkyrie::campaign::query_msgs::ActorResponse;
 use valkyrie_qualifier::{QualificationMsg, QualificationResult, QualifiedContinueOption};
 
