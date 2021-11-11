@@ -6,7 +6,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::borrow::Borrow;
 
-use crate::msgs::{GovQueryMsg, GovStakerResponse, PoolQueryMsg};
+use crate::msgs::{GovQueryMsg, GovStakerResponse, PoolBalanceOfResponse, PoolQueryMsg};
 use valkyrie::campaign::query_msgs::ActorResponse;
 use valkyrie_qualifier::QualifiedContinueOption;
 
@@ -206,12 +206,14 @@ impl Querier<'_> {
     }
 
     pub fn load_pool_deposit(&self, pool: &Addr, staker: &Addr) -> StdResult<Uint256> {
-        self.querier.query_wasm_smart(
+        let balance: PoolBalanceOfResponse = self.querier.query_wasm_smart(
             pool,
             &PoolQueryMsg::BalanceOf {
                 owner: staker.to_string(),
             },
-        )
+        )?;
+
+        Ok(balance.amount)
     }
 
     pub fn load_gov_stake_amount(&self, gov: &Addr, staker: &Addr) -> StdResult<Uint128> {

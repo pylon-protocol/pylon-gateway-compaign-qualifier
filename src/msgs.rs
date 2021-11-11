@@ -37,6 +37,11 @@ pub enum PoolQueryMsg {
     BalanceOf { owner: String },
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema)]
+pub struct PoolBalanceOfResponse {
+    pub amount: Uint256,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum GovQueryMsg {
