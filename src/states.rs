@@ -1,4 +1,5 @@
-use cosmwasm_std::{Addr, QuerierWrapper, StdResult, Storage, Uint128, Uint256};
+use cosmwasm_bignumber::Uint256;
+use cosmwasm_std::{Addr, QuerierWrapper, StdResult, Storage, Uint128};
 use cw20::{BalanceResponse, Cw20QueryMsg, Denom};
 use cw_storage_plus::{Item, Map};
 use schemars::JsonSchema;
