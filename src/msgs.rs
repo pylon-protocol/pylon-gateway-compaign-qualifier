@@ -52,7 +52,6 @@ pub enum GovQueryMsg {
 pub struct GovStakerResponse {
     pub balance: Uint128,
     pub share: Uint128,
-    pub claimable_airdrop: Vec<(String, Uint128)>,
     pub locked_balance: Vec<(u64, VoterInfo)>,
 }
 
