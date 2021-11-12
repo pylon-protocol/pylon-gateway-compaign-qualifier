@@ -35,7 +35,9 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> E
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> Result<Binary, ContractError> {
     let result = match msg {
-        QueryMsg::Qualify(msg) => to_binary(&queries::qualify(deps, env, msg)?),
+        QueryMsg::Qualify(msg) => {
+            to_binary(&queries::qualify_without_checking_deposit(deps, env, msg)?)
+        }
         QueryMsg::Requirement {} => to_binary(&queries::requirement(deps, env)?),
     }?;
 

@@ -111,6 +111,30 @@ impl Requirement {
         Ok((true, String::default()))
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub fn is_satisfy_requirements_without_checking_deposit(
+        &self,
+        storage: &dyn Storage,
+        _block_number: &u64,
+        querier: &Querier,
+        campaign: &Addr,
+        sender: &Addr,
+        actor: &Addr,
+        _referrer: Option<&Addr>,
+    ) -> StdResult<(bool, String)> {
+        let result = self.is_satisfy_mine_stake_amount(storage, querier, sender)?;
+        if !result.0 {
+            return Ok(result);
+        }
+
+        let result = self.is_satisfy_participation_count(querier, campaign, actor)?;
+        if !result.0 {
+            return Ok(result);
+        }
+
+        Ok((true, String::default()))
+    }
+
     fn is_satisfy_deposit_delta(
         &self,
         storage: &dyn Storage,
